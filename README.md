@@ -138,7 +138,7 @@ for msg in consumer:
     print(data)
 ```
 
-# Kafka + SSL Integration - Generate SSL Key and Certificate fo Kafka Broker
+# Kafka + SSL Integration - Generate SSL Key and Certificate of Kafka Broker
 **Server Certificate Setup**
 Create folder named ssl in kafka folder.
 ```sh
