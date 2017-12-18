@@ -32,26 +32,8 @@ Once you have successfully downloaded Apache Kafka binary, proceed with the oper
 ```sh
 $ tar -xzf kafka_2.11-1.0.0.tgz
 $ mv kafka_2.11-1.0.0.tgz kafka
-$ cd kafka_2.11-1.0.0
-```
- - Start Apache Kafka Broker on AWS Free Tier
-```sh
 $ cd kafka
-$ bin/zookeeper-server-start.sh config/zookeeper.properties
-$ bin/kafka-server-start.sh config/server.properties
 ```
- - Create a Kafka Topic 
-```sh
-$ cd kafka
-$ bin/zookeeper-server-start.sh config/zookeeper.properties
-$ bin/kafka-server-start.sh config/server.properties
-```
-- List Active Topics
-```sh
-$ bin/kafka-topics.sh --list --zookeeper localhost:2181
-```
-
-**Now you can send data your Kafka Topic on your AWS Free Tier**
 
 # Configure AWS EC2 Free Tier Security Group for Apache Kafka Port Listening
 - Find and click **Securiy Groups** section under **Network & Security** in AWS EC2 Dashboard.
@@ -76,67 +58,14 @@ $ bin/kafka-topics.sh --list --zookeeper localhost:2181
 
 > Detailed information about Security Groups http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_SecurityGroups.html#VPCSecurityGroups
 
+# Configure AWS EC2 Free Tier Network 
+If you associate your instance with an Elastic IP, your crawler will be work more properly, against connection problems.
+>An Elastic IP address is a static IPv4 address designed for dynamic cloud computing. An Elastic IP address is associated with your AWS account. With an Elastic IP address, you can mask the failure of an instance or software by rapidly remapping the address to another instance in your account. An Elastic IP address is a public IPv4 address, which is reachable from the Internet. If your instance does not have a public IPv4 address, you can associate an Elastic IP address with your instance to enable communication with the Internet; for example, to connect to your instance from your local computer.
 
- # Apache Kafka Producer & Consumer Examples in Python Language
- **Dependencies**
- - Python3.0=<
- - kafka-python Library
- 
-**Kafka Simple Producer Example**
-```sh
-from kafka import KafkaProducer
-producer = KafkaProducer(bootstrap_servers='"Hostname or Private IP of AWS Instance":9092')
-for _ in range(100):
-    producer.send('kafka-social', b'Test Message')
-```
-
-**Kafka Simple Consumer Example**
-```sh
-from kafka import KafkaConsumer
-consumer = KafkaConsumer('kafka-social',
-                         group_id='my-group',
-                         bootstrap_servers=['"Public DNS (IPv4) of AWS Instance":9092'])
-
-print("Listening")
-for msg in consumer:
-    print(msg)
-```
-
-**Kafka Producer Example with SSL**
-```sh
-from kafka import KafkaConsumer
-from kafka import KafkaProducer
-import json
-producer = KafkaProducer(bootstrap_servers=['"Hostname or Private IP of AWS Instance":9092'],
-                         value_serializer=lambda m: json.dumps(m).encode('utf-8'),
-                         security_protocol='SSL',
-                         ssl_check_hostname=False,
-                         ssl_cafile='/home/ubuntu/kafka/ssl/CARoot.pem',
-                         ssl_certfile='/home/ubuntu/kafka/ssl/client_certificate.pem',
-                         ssl_keyfile='/home/ubuntu/kafka/ssl/client_key.pem',
-                         ssl_password='PASSWORD')
-print("Cluster Kafka Connection Established")
-```
-**Kafka Consumer Example with SSL**
-```sh
-from kafka import KafkaConsumer
-from kafka import KafkaProducer
-import json
-print("Connecting Remote Kafka Broker on AWS Instance")
-consumer = KafkaConsumer('kafka-social',
-                         bootstrap_servers=['"Public DNS (IPv4) of AWS Instance":9092'],
-                         security_protocol='SSL',
-                         ssl_check_hostname=False,
-                         ssl_cafile='FilePath/CARoot.pem',
-                         ssl_certfile='FilePath/client_certificate.pem',
-                         ssl_keyfile=FilePath/client_key.pem',
-                         ssl_password='PASSWORD')
-print("AWS Kafka Connection Established")
-print("Listening")
-for msg in consumer:
-    data = json.loads(msg.value.decode("UTF-8"))
-    print(data)
-```
+- Find and click **Elastic IPs** section under **Network & Security** in AWS EC2 Dashboard.
+- Allocate new address
+- Select newly allocated Elastic IP and associate it with your instance
+ **Note: If you allocated an Elastic IP, you must be associate with an instance. Otherwise, there will be some financial charge for allocating Elastic IP uncessearily. If you do not use IP, please release it.**
 
 # Kafka + SSL Integration - Generate SSL Key and Certificate of Kafka Broker
 **Server Certificate Setup**
@@ -201,6 +130,7 @@ $ keytool -keystore client.keystore.jks -alias client -import -file cert-signed-
 ```
 
 **Extract Required Keys and Certificates**
+
 Extract Client Cerfiticate
 ```sh
 $ keytool -exportcert -alias client -keystore client.keystore.jks -rfc -file client_certificate.pem
@@ -223,3 +153,113 @@ Extract The CARoot Certificate
 ```sh
 $keytool -exportcert -alias CARoot -keystore client.keystore.jks -rfc -file CARoot.pem
 ```
+
+ # Apache Kafka Producer & Consumer Examples in Python Language
+ **Dependencies**
+ - Python3.0=<
+ - kafka-python Library
+ 
+**Kafka Simple Producer Example**
+```sh
+from kafka import KafkaProducer
+producer = KafkaProducer(bootstrap_servers='"Hostname or Private IP of AWS Instance":9092')
+for _ in range(100):
+    producer.send('kafka-social', b'Test Message')
+```
+
+**Kafka Simple Consumer Example**
+```sh
+from kafka import KafkaConsumer
+consumer = KafkaConsumer('kafka-social',
+                         group_id='my-group',
+                         bootstrap_servers=['"Public DNS (IPv4) of AWS Instance":9092'])
+
+print("Listening")
+for msg in consumer:
+    print(msg)
+```
+
+**Kafka Producer Example with SSL**
+```sh
+from kafka import KafkaConsumer
+from kafka import KafkaProducer
+import json
+producer = KafkaProducer(bootstrap_servers=['"Hostname or Private IP of AWS Instance":9092'],
+                         value_serializer=lambda m: json.dumps(m).encode('utf-8'),
+                         security_protocol='SSL',
+                         ssl_check_hostname=False,
+                         ssl_cafile='/home/ubuntu/kafka/ssl/CARoot.pem',
+                         ssl_certfile='/home/ubuntu/kafka/ssl/client_certificate.pem',
+                         ssl_keyfile='/home/ubuntu/kafka/ssl/client_key.pem',
+                         ssl_password='PASSWORD')
+print("Cluster Kafka Connection Established")
+```
+**Kafka Consumer Example with SSL**
+```sh
+from kafka import KafkaConsumer
+from kafka import KafkaProducer
+import json
+print("Connecting Remote Kafka Broker on AWS Instance")
+consumer = KafkaConsumer('kafka-social',
+                         bootstrap_servers=['"Public DNS (IPv4) of AWS Instance":9092'],
+                         security_protocol='SSL',
+                         ssl_check_hostname=False,
+                         ssl_cafile='FilePath/CARoot.pem',
+                         ssl_certfile='FilePath/client_certificate.pem',
+                         ssl_keyfile=FilePath/client_key.pem',
+                         ssl_password='PASSWORD')
+print("AWS Kafka Connection Established")
+print("Listening")
+for msg in consumer:
+    data = json.loads(msg.value.decode("UTF-8"))
+    print(data)
+```
+
+# Apache Kafka Server Properties Configurations
+ - Go to Apache Kafka Directory
+```sh
+$ cd kafka
+```
+- Edit config/server.properties with your favorite text editor
+```sh
+$ nano config/server.properties
+```
+- Add below commands to end of file
+```sh
+# The address the socket server listens on.
+$ listeners=SSL://"Hostname or Private IP of AWS Instance":9092
+# Enable SSL for inter-broker communication
+$ inter.broker.listener.name=SSL
+# Hostname and port the broker will advertise to producers and consumers.
+$ advertised.listeners=SSL://"Hostname or Private IP of AWS Instance":9092
+# SSL Files Locations and Passwords
+$ ssl.keystore.location=FilePath/server.keystore.jks
+$ ssl.keystore.password=PASSWORD.
+$ ssl.key.password=PASSWORD.
+$ ssl.truststore.location=FilePath/server.truststore.jks
+$ ssl.truststore.password=PASSWORD
+```
+- Save and Exit File
+```sh
+$ CTRL + X + Y - Enter
+```
+
+# Run Apache Kafka Broker
+ - Start Apache Kafka Broker on AWS Free Tier
+```sh
+$ cd kafka
+$ bin/zookeeper-server-start.sh config/zookeeper.properties
+$ bin/kafka-server-start.sh config/server.properties
+```
+ - Create a Kafka Topic 
+```sh
+$ cd kafka
+$ bin/zookeeper-server-start.sh config/zookeeper.properties
+$ bin/kafka-server-start.sh config/server.properties
+```
+- List Active Topics
+```sh
+$ bin/kafka-topics.sh --list --zookeeper localhost:2181
+```
+
+**Now you can send data your Kafka Topic on your AWS Free Tier**
