@@ -45,7 +45,7 @@ $ cd kafka
 | Type | Custom TCP Rule |
 | Protocol | TCP |
 | Port Range | 2181 |
-| Source | My IP (which is your local IP) |
+| Source | My IP (which is your IP) |
 | Description | ZooKeeper Connection |
 
 |  |  |
@@ -53,7 +53,7 @@ $ cd kafka
 | Type | Custom TCP Rule |
 | Protocol |TCP |
 | Port Range | 9092 |
-| Source | My IP (which is your local IP) |
+| Source | My IP (which is your IP) |
 | Description | Kafka Connection |
 
 > Detailed information about Security Groups http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_SecurityGroups.html#VPCSecurityGroups
@@ -245,16 +245,11 @@ $ CTRL + X + Y - Enter
 ```
 
 # Run Apache Kafka Broker
- - Start Apache Kafka Broker on AWS Free Tier
+ - Start Apache Kafka Broker on AWS Free Tier with Java 512MB Java Heap Size
 ```sh
 $ cd kafka
 $ bin/zookeeper-server-start.sh config/zookeeper.properties
-$ bin/kafka-server-start.sh config/server.properties
-```
- - Create a Kafka Topic 
-```sh
-$ cd kafka
-$ bin/zookeeper-server-start.sh config/zookeeper.properties
+$ export KAFKA_HEAP_OPTS="-Xmx512m -Xms512m"
 $ bin/kafka-server-start.sh config/server.properties
 ```
 - List Active Topics
